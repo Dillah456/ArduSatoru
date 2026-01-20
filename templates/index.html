@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ArduSatoru - Expert System Pariwisata</title>
+</head>
+<body>
+
+    <h2>Sistem Pakar Rekomendasi Pariwisata</h2>
+    <p>Isi salah satu atau beberapa kriteria</p>
+
+    <form method="POST">
+        <label>Domisili:</label><br>
+        <input type="text" name="domisili" placeholder="Contoh: Jawa Barat"><br><br>
+
+        <label>Biaya (Rp):</label><br>
+        <input type="number" name="uang" placeholder="Contoh: 500000"><br><br>
+
+        <label>Waktu Perjalanan (Hari):</label><br>
+        <input type="number" name="waktu" placeholder="Contoh: 2"><br><br>
+
+        <button type="submit">Cari Rekomendasi</button>
+    </form>
+
+    {% if hasil is not none %}
+        <h3>Hasil Rekomendasi:</h3>
+
+        {% if hasil %}
+            <ul>
+                {% for r in hasil %}
+                    <li>{{ r }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Tidak ditemukan tempat wisata yang sesuai.</p>
+        {% endif %}
+    {% endif %}
+
+</body>
+</html>

@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "nama_tempat": "Pantai Pelabuhan Ratu",
+    "domisili": "Jawa Barat",
+    "uang_min": 100000,
+    "uang_max": 500000,
+    "waktu": 1
+  },
+  {
+    "id": 2,
+    "nama_tempat": "Geopark Ciletuh",
+    "domisili": "Jawa Barat",
+    "uang_min": 200000,
+    "uang_max": 700000,
+    "waktu": 2
+  },
+  {
+    "id": 3,
+    "nama_tempat": "Bali",
+    "domisili": "Luar Jawa Barat",
+    "uang_min": 1000000,
+    "uang_max": 5000000,
+    "waktu": 3
+  }
+]
