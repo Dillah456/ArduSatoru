@@ -13,30 +13,40 @@ def load_data():
 
 def expert_system(domisili=None, uang=None, waktu=None):
     data = load_data()
-    rekomendasi = []
+    hasil = []
 
     for wisata in data:
         cocok = True
+        alasan = []
 
         # Rule Domisili
         if domisili:
-            if wisata["domisili"].lower() != domisili.lower():
+            if wisata["domisili"].lower() == domisili.lower():
+                alasan.append(f"sesuai dengan domisili Anda ({domisili})")
+            else:
                 cocok = False
 
-        # Rule Uang
+        # Rule Biaya
         if uang:
-            if not (wisata["uang_min"] <= uang <= wisata["uang_max"]):
+            if wisata["uang_min"] <= uang <= wisata["uang_max"]:
+                alasan.append(f"sesuai dengan anggaran Anda (Rp{uang})")
+            else:
                 cocok = False
 
         # Rule Waktu
         if waktu:
-            if waktu < wisata["waktu"]:
+            if waktu >= wisata["waktu"]:
+                alasan.append(f"dapat dikunjungi dalam waktu {waktu} hari")
+            else:
                 cocok = False
 
         if cocok:
-            rekomendasi.append(wisata["nama_tempat"])
+            hasil.append({
+                "nama": wisata["nama_tempat"],
+                "alasan": alasan
+            })
 
-    return rekomendasi
+    return hasil
 
 
 @app.route("/", methods=["GET", "POST"])

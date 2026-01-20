@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+    <meta charset="UTF-8">
     <title>ArduSatoru - Expert System Pariwisata</title>
 </head>
 <body>
 
     <h2>Sistem Pakar Rekomendasi Pariwisata</h2>
-    <p>Isi salah satu atau beberapa kriteria</p>
+    <p>Silakan isi salah satu atau beberapa kriteria</p>
 
     <form method="POST">
         <label>Domisili:</label><br>
@@ -27,11 +28,20 @@
         {% if hasil %}
             <ul>
                 {% for r in hasil %}
-                    <li>{{ r }}</li>
+                    <li>
+                        <strong>{{ r.nama }}</strong>
+                        <br>
+                        Alasan rekomendasi:
+                        <ul>
+                            {% for a in r.alasan %}
+                                <li>{{ a }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p>Tidak ditemukan tempat wisata yang sesuai.</p>
+            <p>Tidak ditemukan rekomendasi yang sesuai.</p>
         {% endif %}
     {% endif %}
 
