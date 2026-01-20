@@ -23,6 +23,13 @@ Cara penggunaan :
 Untuk proyek ini sendiri akan terus dikembangkan 
 
 ## On-Going 
+### * Cosmetic ->
 ### * Penambahan Rest API -> ( 25 / Januari 2026 / On Plan) 
 ### * Perluasan Knowledge Base -> ( 15 / Februari 2026 / On Plan )
-### * 
+### * Mobile App -> 
+
+
+# Team
+1. N.Abdillah Ramadlan -> ( 2330511060 )
+2. Reihan Muhammad Syawal -> ( 2330511063 )
+3. Samsul Huda -> ( 2330511077 )
