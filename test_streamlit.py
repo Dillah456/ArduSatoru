@@ -26,28 +26,34 @@ def fetch_data_from_api():
         st.error(f"Gagal terhubung ke API: {e}")
         return []
 
-# Fungsi untuk filter rekomendasi
-def filter_recommendations(data, budget, kecamatan):
+# Fungsi untuk filter rekomendasi berdasarkan Cost
+def filter_by_cost(data, budget):
     """
     Filter tempat wisata berdasarkan:
-    1. Budget user harus berada dalam range Cost_Start dan Cost_Max
-    2. Kecamatan sesuai dengan input user (jika ada)
+    Budget user harus berada dalam range Cost_Start dan Cost_Max
     """
     recommendations = []
     
     for place in data:
-        # Check cost range
         cost_start = place.get("Cost_Start", 0)
         cost_max = place.get("Cost_Max", float('inf'))
         
         if cost_start <= budget <= cost_max:
-            # Check kecamatan if specified
-            if kecamatan:
-                place_kecamatan = place.get("Domisili", {}).get("kecamatan", "").lower()
-                if kecamatan.lower() in place_kecamatan or place_kecamatan in kecamatan.lower():
-                    recommendations.append(place)
-            else:
-                recommendations.append(place)
+            recommendations.append(place)
+    
+    return recommendations
+
+# Fungsi untuk filter rekomendasi berdasarkan Kecamatan
+def filter_by_kecamatan(data, kecamatan):
+    """
+    Filter tempat wisata berdasarkan Kecamatan
+    """
+    recommendations = []
+    
+    for place in data:
+        place_kecamatan = place.get("Domisili", {}).get("kecamatan", "").lower()
+        if kecamatan.lower() in place_kecamatan or place_kecamatan in kecamatan.lower():
+            recommendations.append(place)
     
     return recommendations
 
@@ -89,18 +95,17 @@ elif menu == "Input Kriteria":
     data = fetch_data_from_api()
     
     if data:
-        # Get unique kecamatan
-        kecamatan_list = set()
-        for place in data:
-            kec = place.get("Domisili", {}).get("kecamatan")
-            if kec:
-                kecamatan_list.add(kec)
-        kecamatan_list = sorted(list(kecamatan_list))
+        # Pilih tipe pencarian
+        tipe_pencarian = st.radio(
+            "Pilih Tipe Pencarian",
+            ["Berdasarkan Cost", "Berdasarkan Kecamatan"],
+            horizontal=True
+        )
         
-        # Input form
-        col1, col2 = st.columns(2)
+        st.divider()
         
-        with col1:
+        if tipe_pencarian == "Berdasarkan Cost":
+            # Input form untuk Cost
             budget = st.number_input(
                 "💰 Budget Anda (dalam Rupiah)",
                 min_value=0,
@@ -108,51 +113,92 @@ elif menu == "Input Kriteria":
                 step=10000,
                 help="Masukkan budget yang Anda miliki"
             )
-        
-        with col2:
-            kecamatan = st.selectbox(
-                "📍 Pilih Kecamatan (Opsional)",
-                ["Semua Kecamatan"] + kecamatan_list,
-                help="Pilih kecamatan yang Anda inginkan atau semua"
-            )
-            if kecamatan == "Semua Kecamatan":
-                kecamatan = ""
-        
-        # Button untuk cari rekomendasi
-        if st.button("🔍 Cari Rekomendasi", use_container_width=True, type="primary"):
-            recommendations = filter_recommendations(data, budget, kecamatan)
             
-            st.subheader("📋 Hasil Rekomendasi")
-            
-            if recommendations:
-                st.success(f"✅ Ditemukan {len(recommendations)} tempat wisata yang sesuai dengan kriteria Anda!")
+            # Button untuk cari rekomendasi
+            if st.button("🔍 Cari Rekomendasi", use_container_width=True, type="primary"):
+                recommendations = filter_by_cost(data, budget)
                 
-                # Tampilkan dalam bentuk cards
-                for idx, place in enumerate(recommendations, 1):
-                    with st.container(border=True):
-                        col1, col2 = st.columns([3, 1])
-                        
-                        with col1:
-                            st.markdown(f"### {idx}. {place.get('nama_tempat', 'N/A')}")
+                st.subheader("📋 Hasil Rekomendasi")
+                
+                if recommendations:
+                    st.success(f"✅ Ditemukan {len(recommendations)} tempat wisata yang sesuai dengan budget Anda!")
+                    
+                    # Tampilkan dalam bentuk cards
+                    for idx, place in enumerate(recommendations, 1):
+                        with st.container(border=True):
+                            col1, col2 = st.columns([3, 1])
                             
-                            # Info lokasi
-                            domisili = place.get('Domisili', {})
-                            st.write(f"**Lokasi:** {domisili.get('kecamatan', 'N/A')}, {domisili.get('kabupaten_kota', 'N/A')}")
-                            st.write(f"**Provinsi:** {domisili.get('provinsi', 'N/A')}")
-                        
-                        with col2:
-                            st.metric("ID", place.get('id', 'N/A'))
-                        
-                        # Info cost
-                        cost_start = place.get('Cost_Start', 0)
-                        cost_max = place.get('Cost_Max', 0)
-                        st.write(f"💵 **Range Harga:** Rp {cost_start:,} - Rp {cost_max:,}")
-                        st.write(f"✨ **Status:** Sesuai dengan budget Anda")
-            else:
-                st.warning("❌ Maaf, tidak ada tempat wisata yang sesuai dengan kriteria Anda. Coba ubah budget atau kecamatan Anda.")
+                            with col1:
+                                st.markdown(f"### {idx}. {place.get('nama_tempat', 'N/A')}")
+                                
+                                # Info lokasi
+                                domisili = place.get('Domisili', {})
+                                st.write(f"**Lokasi:** {domisili.get('kecamatan', 'N/A')}, {domisili.get('kabupaten_kota', 'N/A')}")
+                                st.write(f"**Provinsi:** {domisili.get('provinsi', 'N/A')}")
+                            
+                            with col2:
+                                st.metric("ID", place.get('id', 'N/A'))
+                            
+                            # Info cost
+                            cost_start = place.get('Cost_Start', 0)
+                            cost_max = place.get('Cost_Max', 0)
+                            st.write(f"💵 **Range Harga:** Rp {cost_start:,} - Rp {cost_max:,}")
+                else:
+                    st.warning("❌ Maaf, tidak ada tempat wisata yang sesuai dengan budget Anda. Coba ubah budget.")
+                    
+                    # Saran
+                    st.info("💡 **Saran:** Coba ubah budget untuk hasil yang lebih banyak.")
+        
+        else:  # Berdasarkan Kecamatan
+            # Get unique kecamatan
+            kecamatan_list = set()
+            for place in data:
+                kec = place.get("Domisili", {}).get("kecamatan")
+                if kec:
+                    kecamatan_list.add(kec)
+            kecamatan_list = sorted(list(kecamatan_list))
+            
+            # Input form untuk Kecamatan
+            kecamatan = st.selectbox(
+                "📍 Pilih Kecamatan",
+                kecamatan_list,
+                help="Pilih kecamatan yang Anda inginkan"
+            )
+            
+            # Button untuk cari rekomendasi
+            if st.button("🔍 Cari Rekomendasi", use_container_width=True, type="primary"):
+                recommendations = filter_by_kecamatan(data, kecamatan)
                 
-                # Saran
-                st.info("💡 **Saran:** Coba tingkatkan budget atau ubah kecamatan untuk hasil yang lebih banyak.")
+                st.subheader("📋 Hasil Rekomendasi")
+                
+                if recommendations:
+                    st.success(f"✅ Ditemukan {len(recommendations)} tempat wisata di {kecamatan}!")
+                    
+                    # Tampilkan dalam bentuk cards
+                    for idx, place in enumerate(recommendations, 1):
+                        with st.container(border=True):
+                            col1, col2 = st.columns([3, 1])
+                            
+                            with col1:
+                                st.markdown(f"### {idx}. {place.get('nama_tempat', 'N/A')}")
+                                
+                                # Info lokasi
+                                domisili = place.get('Domisili', {})
+                                st.write(f"**Lokasi:** {domisili.get('kecamatan', 'N/A')}, {domisili.get('kabupaten_kota', 'N/A')}")
+                                st.write(f"**Provinsi:** {domisili.get('provinsi', 'N/A')}")
+                            
+                            with col2:
+                                st.metric("ID", place.get('id', 'N/A'))
+                            
+                            # Info cost
+                            cost_start = place.get('Cost_Start', 0)
+                            cost_max = place.get('Cost_Max', 0)
+                            st.write(f"💵 **Range Harga:** Rp {cost_start:,} - Rp {cost_max:,}")
+                else:
+                    st.warning(f"❌ Maaf, tidak ada tempat wisata di {kecamatan}.")
+                    
+                    # Saran
+                    st.info("💡 **Saran:** Coba pilih kecamatan lain.")
     else:
         st.error("Gagal memuat data dari API")
 
